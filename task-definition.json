@@ -1,0 +1,82 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:654654152686:task-definition/super_mario:2",
+    "containerDefinitions": [
+        {
+            "name": "mario_container",
+            "image": "docker.io/dazdaz/sonic:latest@sha256:98686262f4cb272f43166dbcab739ccbd400a0d255f510041394707633b64b05",
+            "cpu": 512,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "containerPort": 8888,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "DEFAULT_AWS_REGION",
+                    "value": "us-east-1"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "mario_container",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "super_mario",
+    "taskRoleArn": "arn:aws:iam::654654152686:role/ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::654654152686:role/ecs-task-role",
+    "networkMode": "awsvpc",
+    "revision": 2,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "registeredAt": "2024-07-04T15:23:29.277000+00:00",
+    "registeredBy": "arn:aws:iam::654654152686:user/cloud_user"
+}
