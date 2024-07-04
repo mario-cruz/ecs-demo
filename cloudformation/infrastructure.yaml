@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Infrastructure for TF state files
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W3045
+Parameters:
+  prefix:
+    Description: The prefix of the identifiers
+    Type: String
+    Default: mac-
+  bucketIdentifier:
+    Description: The identifier for the S3 bucket resources
+    Type: String
+    Default: tf-state
+  dynamoIdentifier:
+    Description: The identifier for DynamoDB table
+    Type: String
+    Default: tf-lock
+Resources:
+  tfBackendBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Sub ${prefix}${bucketIdentifier}-${AWS::AccountId}-${AWS::Region}
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      LoggingConfiguration:
+        DestinationBucketName: !Ref tfBackendLogsBucket
+        LogFilePrefix: logs
+      Tags:
+        - Key: CreatedFor
+          Value: Terrafrom-State
+        - Key: CreatedBy
+          Value: "CFN Template for TF Backend"
+        - Key: Description
+          Value: !Sub "Terraform S3 Backend bucket which stores the terraform state for account ${AWS::AccountId}-${AWS::Region}."
+  tfBackendBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref tfBackendBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: "AllowSSLRequestsOnly"
+            Action: 
+               - "s3:*"
+            Effect: "Deny"
+            Principal:
+              AWS: "*"
+            Resource:
+              # - !Sub arn:${AWS::Partition}:s3:::${tfBackendBucket}
+              - !Sub arn:${AWS::Partition}:s3:::${tfBackendBucket}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+          - Sid: "RequireEncryptedStorage"
+            Action:
+              - "s3:PutObject"
+            Effect: "Deny"
+            Resource:
+              # - !Sub arn:${AWS::Partition}:s3:::${tfBackendBucket}
+              - !Sub arn:${AWS::Partition}:s3:::${tfBackendBucket}/*
+            Principal: '*'  
+            Condition:
+              StringNotEquals:
+                s3:x-amz-server-side-encryption: "AES256"
+              # 'Null':
+              #   s3:x-amz-server-side-encryption: false
+              # StringNotEquals:
+              #   s3:x-amz-server-side-encryption: 'aws:kms'
+  tfBackendLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: LogDeliveryWrite
+      BucketName: !Sub ${prefix}${bucketIdentifier}-logs-${AWS::AccountId}-${AWS::Region}
+      Tags:
+        - Key: CreatedBy
+          Value: "Github Action Workflow"
+        - Key: Descriptio
+          Value: "Logs of Terraform S3 Backend bucket."
+  tfBackendLogsBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref tfBackendLogsBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${tfBackendLogsBucket}/*"
+            Condition:
+              ArnLike:
+                'aws:SourceArn': !GetAtt 
+                  - tfBackendBucket
+                  - Arn
+              StringEquals:
+                'aws:SourceAccount': !Sub '${AWS::AccountId}' 
+  tfBackendStateLockTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Properties:
+      AttributeDefinitions:
+        - 
+          AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - 
+          AttributeName: LockID
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: !Sub ${prefix}${dynamoIdentifier}-${AWS::AccountId}-${AWS::Region}
+      Tags:
+        - Key: CreatedFor
+          Value: Terrafrom-Lock
+        - Key: CreatedBy
+          Value: "CFN Template for TF Backend"
