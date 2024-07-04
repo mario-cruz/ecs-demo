@@ -173,7 +173,7 @@ resource "aws_ecs_task_definition" "task01" {
   [
     {
       "name": "nodejs-app",
-      "image": "docker.io/kaminskypavel/mario:latest@sha256:sha256:e695b3e9680b7b12e9ac4101dd02c554cbda7a90c1d6331b2f8c96c0d06f09a8",
+      "image": "docker.io/kaminskypavel/mario:latest@sha256:e695b3e9680b7b12e9ac4101dd02c554cbda7a90c1d6331b2f8c96c0d06f09a8",
       "cpu": 512,
       "memory": 1024,
       "essential": true,
