@@ -1,4 +1,4 @@
-name: AWS Update Task Definition
+name: CDK Update ECS Task Definition
 
 on:
   workflow_dispatch:
