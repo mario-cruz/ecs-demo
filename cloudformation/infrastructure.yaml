@@ -146,3 +146,13 @@ Resources:
           Value: Terrafrom-Lock
         - Key: CreatedBy
           Value: "CFN Template for TF Backend"
+Outputs:
+  TFBucketState:
+    Description: "Bucket name for TF State"
+    Value: !Ref tfBackendBucket
+  TFDynamoLockTable:
+    Description: "DynamoDB Lock Table TF State"
+    Value: !Ref tfBackendStateLockTable
+  TFRegion:
+    Description: "Deployed region"
+    Value: !Sub ${AWS::Region}

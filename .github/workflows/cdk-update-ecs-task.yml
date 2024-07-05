@@ -16,7 +16,7 @@ on:
         required: true
       image_url:
         description: 'URL Image to deploy'
-        default: 'docker.io/aschil/snake:latestsha256:ab807cd743c719dadc67153798c537fb0e987170c428bdd47dbc2cbd3bc15e00'
+        default: 'docker.io/aschil/snake:latest@sha256:ab807cd743c719dadc67153798c537fb0e987170c428bdd47dbc2cbd3bc15e00'
         required: true
 
 permissions:
