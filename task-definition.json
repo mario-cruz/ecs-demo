@@ -34,8 +34,8 @@
         }
     ],
     "family": "super_mario",
-    "taskRoleArn": "arn:aws:iam::654654152686:role/ecs-task-role",
-    "executionRoleArn": "arn:aws:iam::654654152686:role/ecs-task-role",
+    "taskRoleArn": "arn:aws:iam::590183907616:role/ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::590183907616:role/ecs-task-role",
     "networkMode": "awsvpc",
     "volumes": [],
     "placementConstraints": [],
